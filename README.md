@@ -33,3 +33,6 @@
 
 - Doraemon_o
   https://github.com/fjwpsyb/Bncr_plugin
+  
+- Mrzqd (QQ频道Adapter)
+  https://github.com/Mrzqd/Bncr_pulgins

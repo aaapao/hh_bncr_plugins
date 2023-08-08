@@ -2,8 +2,9 @@
  * @author 小寒寒
  * @name magic_gifts
  * @origin 小寒寒
- * @version 1.0.1
+ * @version 1.0.2
  * @description 查询gifts.csv 命令：查实物 10
+ * @platform qq ssh HumanTG wxQianxun wxKeAImao wxXyo pgm qqPD
  * @rule ^查询实物 ([\d]+)$
  * @rule ^查实物 ([\d]+)$
  * @admin true

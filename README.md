@@ -36,3 +36,6 @@
   
 - Mrzqd
   https://github.com/Mrzqd/Bncr_pulgins
+
+- sumuen
+  https://github.com/sumuen/Bncr_plugin

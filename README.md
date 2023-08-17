@@ -1,5 +1,5 @@
 # hh_bncr_plugins
-不定时更新~
+无帮助，不定时更新~
 # 友情链接（排名不分先后）
 - 无界官网
   https://anmours.github.io/Bncr

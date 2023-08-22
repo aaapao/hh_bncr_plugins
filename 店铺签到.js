@@ -2,14 +2,13 @@
  * @author 小寒寒
  * @name 店铺签到
  * @origin 小寒寒
- * @version 1.0.2
+ * @version 1.0.3
  * @description 店铺签到
  * @rule ^(店铺签到|签到检查|签到爬取|签到清理)$
  * @rule ^(签到转码)([\s\S]+)$
  * @rule ^(签)([\s\S]+)$
  * @rule [0-9]{1,3}天[0-9]{1,3}.0豆
  * @rule [0-9]{1,3}天[0-9]{1,3}豆
- * @rule [0-9]{1,3}天,[0-9]{1,3}京豆
  * @admin false
  * @public false
  * @priority 99999999
@@ -50,7 +49,7 @@ const signTxtUrl = 'http://jd.lsy22.cn/BFx'; // 签到爬取的文档
 const prizeNum = 50; // 奖品数量，低于则不入库
 const maxRetryCount = 5; // 签到重试次数
 const proxyApi = ''; // 代理api，留空则不使用，多号推荐使用
-const pinBlack = ['5376793_m']; //屏蔽的CK
+const pinBlack = []; //屏蔽的CK
 
 const H5ST = require('./mod/h5st.js');
 const { USER_AGENT } = require('../红灯区/mod/USER_AGENTS.js');

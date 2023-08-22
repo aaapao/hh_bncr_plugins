@@ -2,11 +2,11 @@
  * @author 小寒寒
  * @name 店铺签到
  * @origin 小寒寒
- * @version 1.0.4
+ * @version 1.0.5
  * @description 店铺签到
  * @rule ^(店铺签到|签到检查|签到爬取|签到清理)$
  * @rule ^(签到转码)([\s\S]+)$
- * @rule ^(签)([\s\S]+)$
+ * @rule ^(店签)([\s\S]+)$
  * @rule [0-9]{1,3}天[0-9]{1,3}.0豆
  * @rule [0-9]{1,3}天[0-9]{1,3}豆
  * @admin false

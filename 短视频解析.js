@@ -2,10 +2,10 @@
  * @author 小寒寒
  * @name 短视频解析
  * @origin 小寒寒
- * @version 1.0.0
+ * @version 1.0.1
  * @description 短视频解析，目前支持抖音和快手，理论其它平台也支持，参考抖音快手只需添加rule即可。默认发送视频，go-cqhttp对应的系统或docker需安装ffmpeg
- * @rule (https:\/\/v\.douyin\.com/[a-zA-Z0-9]+)
- * @rule (https:\/\/v\.kuaishou\.com/[a-zA-Z0-9]+)
+ * @rule (https:\/\/v\.douyin\.com\/[a-zA-Z0-9]+)
+ * @rule (https:\/\/v\.kuaishou\.com\/[a-zA-Z0-9]+)
  * @priority 1000
  * @admin false
  * @disable false

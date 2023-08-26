@@ -3,7 +3,8 @@
  * @name 美团登录
  * @description 美团登录
  * @rule ^(美团登录|登录美团)$
- * @version 1.0.1
+ * @rule ^https:\/\/i\.meituan\.com\/account\/\?([\S]*)userId=([\d]+)&(amp;)?token=([\S]+)$
+ * @version 1.0.3
  * @priority 1000
  * @admin false
  * @origin 小寒寒
@@ -16,13 +17,23 @@ module.exports = async (s) => {
     const QlMod = require('../红灯区/mod/AmQlMod.js');
     let qlDb = await QlMod.GetQlDataBase();
     let qlDbArr = qlDb['data'] || [];
+    let url = '';
     if (qlDbArr.length == 0) return s.reply('请先发“面板管理”添加面板');
-    await s.reply(`请访问以下链接，登录之后右上角复制链接：\nhttps://passport.meituan.com/useraccount/ilogin?`);
-    await s.reply(`请在90秒内粘贴登录后的链接：`);
-    let input = await s.waitInput(() => { }, 90);
-    let url = input?.getMsg();
-    s.delMsg(input.getMsgId());
-    if (url.match(/https:\/\/i\.meituan\.com\/account\/\?[\S]+userId=[\d]+&token=[\S]+/)) {
+    const content = await s.getMsg();
+    if (content == '美团登录' || content == '登录美团') {
+        await s.reply(`请访问以下链接，登录之后右上角复制链接：\nhttps://passport.meituan.com/useraccount/ilogin?`);
+        await s.reply(`请在90秒内粘贴登录后的链接：`);
+        let input = await s.waitInput(() => { }, 90);
+        url = input?.getMsg();
+        s.delMsg(input.getMsgId());
+    }
+    else {
+        url = content;
+        s.delMsg(s.getMsgId());
+    }
+    url = url.replace('&amp;', '&')
+    console.log(url);
+    if (url.match(/https:\/\/i\.meituan\.com\/account\/\?([\S]*)userId=([\d]+)&token=([\S]+)/)) {
         let token = getQueryString(url, 'token');
         let userid = getQueryString(url, 'userId');
         const userId = await s.getUserId();

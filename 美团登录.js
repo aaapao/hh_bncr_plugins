@@ -1,9 +1,9 @@
 /**
  * @author 小寒寒
  * @name 美团登录
- * @description elm 
+ * @description 美团登录
  * @rule ^(美团登录|登录美团)$
- * @version 1.0。0
+ * @version 1.0.1
  * @priority 1000
  * @admin false
  * @origin 小寒寒
@@ -11,6 +11,7 @@
  */
 
 const qlNum = 0; // 取哪个容器的ck
+const envName = 'meituanCookie'; //适配萝卜和拉菲的脚本
 module.exports = async (s) => {
     const QlMod = require('../红灯区/mod/AmQlMod.js');
     let qlDb = await QlMod.GetQlDataBase();
@@ -31,7 +32,7 @@ module.exports = async (s) => {
             let t = cookies.data[0];
             QlMod.EditQlEnvs(qlDbArr, qlNum, {
                 "value": token, //变量
-                "name": 'meituanCookie',   //变量名
+                "name": envName,   //变量名
                 "remarks": t.remarks, //备注
                 "id": t.id ? t.id : t._id  //id或_id
             });
@@ -39,7 +40,7 @@ module.exports = async (s) => {
         } else {
             QlMod.AddQlEnvs(qlDbArr, qlNum, [{
                 "value": token,
-                "name": 'meituanCookie',   //变量名
+                "name": envName,   //变量名
                 "remarks": remarks //备注
             }]);
             msg = `${userid}美团上车成功~`;

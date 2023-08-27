@@ -15,6 +15,7 @@
    自动同意好友请求，无需此功能请勿使用。
  寒寒修改说明：
    支持图文消息，语音消息发送 # 90 - 95
+   url解码
  */
 
 module.exports = async () => {
@@ -63,7 +64,7 @@ async function ws(qq) {
                 userName: body.sender.nickname || '',
                 groupId: body.group_id ? body.group_id + '' : '0',
                 groupName: body.group_name || '',
-                msg: body.raw_message || '',
+                msg: decodeURIComponent(body.raw_message) || '',
                 msgId: body.message_id + '' || '',
             };
             // console.log('最终消息：', msgInfo);
@@ -180,7 +181,7 @@ async function http(qq) {
             userName: body.sender['nickname'] || '',
             groupId: body.group_id ? body.group_id + '' : '0',
             groupName: body.group_name || '',
-            msg: body['raw_message'] || '',
+            msg: decodeURIComponent(body['raw_message']) || '',
             msgId: body.message_id + '' || '',
         };
         qq.receive(msgInfo);
@@ -203,9 +204,11 @@ async function http(qq) {
             if (replyInfo.type === 'text') {
                 body.message = replyInfo.msg;
             } else if (replyInfo.type === 'image') {
-                body.message = `[CQ:image,file=${replyInfo.msg}]`;
+                body.message = `${replyInfo.msg}[CQ:image,file=${replyInfo.msg}]`;
             } else if (replyInfo.type === 'video') {
                 body.message = `[CQ:video,file=${replyInfo.msg}]`;
+            } else if (replyInfo.type === 'record') {
+                body.params.message = `[CQ:record,file=${replyInfo.path}]`;
             }
             let sendRes = await requestPost(action, body);
             return sendRes ? sendRes.message_id : '0';

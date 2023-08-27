@@ -2,13 +2,13 @@
  * @author IP变化通知
  * @name IP变化通知
  * @origin 小寒寒
- * @version 1.0.0
+ * @version 1.0.1
  * @rule ^IP变化通知$
  * @description IP变化通知，变化后自动执行代理“更换白名单”命令，多线路的请勿使用
  * @admin true
  * @public false
  * @priority 1000
- * @cron *\/3 * * * *
+ * @cron 0 *\/3 * * * *
  */
 
 const url = "https://apis.jxcxin.cn/api/bjip";
@@ -29,9 +29,9 @@ module.exports = async s => {
             console.log(newip);
             await djunDB.set('local_ip', newip);
             await sysMethod.pushAdmin({
-                platform: ['tgBot'],
-                //type: text,
-                msg: "【IP变更通知】\n上次IP：" + ip + "\n当前IP：" + newip
+                platform: ['tgBot', 'wxQianxun'],
+                type: text,
+                msg: "【IP变更通知】\n上次IP：" + ip + "\n当前IP：" + newip + "\n开始执行【更换白名单】命令"
             });
             sysMethod.inline('更换白名单');
         }

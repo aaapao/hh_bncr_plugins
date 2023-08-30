@@ -88,7 +88,7 @@ async function ws(qq) {
                 if (replyInfo.type === 'text') {
                     body.params.message = replyInfo.msg;
                 } else if (replyInfo.type === 'image') {
-                    body.params.message = `${replyInfo.msg}[CQ:image,file=${replyInfo.path}]`;
+                    body.params.message = `${replyInfo.msg?replyInfo.msg:''}[CQ:image,file=${replyInfo.path}]`;
                 } else if (replyInfo.type === 'video') {
                     body.params.message = `[CQ:video,file=${replyInfo.path}]`;
                 } else if (replyInfo.type === 'record') {
@@ -204,9 +204,9 @@ async function http(qq) {
             if (replyInfo.type === 'text') {
                 body.message = replyInfo.msg;
             } else if (replyInfo.type === 'image') {
-                body.message = `${replyInfo.msg}[CQ:image,file=${replyInfo.msg}]`;
+                body.message = `${replyInfo.msg?replyInfo.msg:''}[CQ:image,file=${replyInfo.path}]`;
             } else if (replyInfo.type === 'video') {
-                body.message = `[CQ:video,file=${replyInfo.msg}]`;
+                body.message = `[CQ:video,file=${replyInfo.path}]`;
             } else if (replyInfo.type === 'record') {
                 body.params.message = `[CQ:record,file=${replyInfo.path}]`;
             }

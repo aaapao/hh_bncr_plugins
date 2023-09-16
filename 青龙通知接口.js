@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 青龙通知接口
  * @origin 小寒寒
- * @version 1.0.0
+ * @version 1.0.1
  * @description 青龙通知接口，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号
  * @public false
  * @priority 99
@@ -105,6 +105,10 @@ router.post('/api/qinglongMessage', async (req, res) => {
           else if (message.indexOf('活动已结束') > -1) {
             await SpyIsValid.set(activityId, '活动已结束');
             message += '\n\nBncr已标记：活动已结束';
+          }
+          else if (message.indexOf('垃圾或领完') > -1) {
+            await SpyIsValid.set(activityId, '垃圾或领完');
+            message += '\n\nBncr已标记：垃圾或领完';
           }
         }
       }

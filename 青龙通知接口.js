@@ -2,8 +2,8 @@
  * @author 小寒寒
  * @name 青龙通知接口
  * @origin 小寒寒
- * @version 1.0.1
- * @description 青龙通知接口，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号
+ * @version 1.0.2
+ * @description 青龙通知接口，适配于麦基EVE库，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号 不能其它通知接口插件共用
  * @public false
  * @priority 99
  * @disable false
@@ -38,7 +38,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
     }
     //订阅变更和豆豆推个人微信
     if (title.indexOf('新增任务') > -1
-      || (/\d+】\S*\d+京豆/.test(message) && title != 'M签到有礼')
+      || (/\d+】\S*\d+京豆/.test(message) && title != 'M签到有礼' && title != 'M京东签到')
       || (/天,\d+京豆/.test(message) && title == 'M签到有礼')
       || (/,已填地址/.test(message) && title != 'M试用有礼')) {
       await sysMethod.push({
@@ -82,8 +82,8 @@ router.post('/api/qinglongMessage', async (req, res) => {
             let datePattern = /开奖时间:\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}/;
             let rlt = datePattern.exec(message)?.toString();
             if (rlt) {
-              console.log(rlt.substr(5, 16));
-              console.log(rlt.substr(5, 16) + ':00');
+              // console.log(rlt.substr(5, 16));
+              // console.log(rlt.substr(5, 16) + ':00');
               let startTime = new Date(rlt.substr(5, 16) + ':00').getTime();
               let cron = dayjs(startTime - timer_before * 1000).format('s m H D M *');
               if (!timer_activityIds[activityId]) {
@@ -102,11 +102,11 @@ router.post('/api/qinglongMessage', async (req, res) => {
             await SpyIsValid.set(activityId, '已经开奖');
             message += '\n\nBncr已标记：已经开奖';
           }
-          else if (message.indexOf('活动已结束') > -1) {
+          else if (message.indexOf('活动已结束') > -1 || message.indexOf('活动已经结束') > -1) {
             await SpyIsValid.set(activityId, '活动已结束');
             message += '\n\nBncr已标记：活动已结束';
           }
-          else if (message.indexOf('垃圾或领完') > -1) {
+          else if (message.indexOf('垃圾或领完') > -1 || message.indexOf('垃圾活动') > -1) {
             await SpyIsValid.set(activityId, '垃圾或领完');
             message += '\n\nBncr已标记：垃圾或领完';
           }

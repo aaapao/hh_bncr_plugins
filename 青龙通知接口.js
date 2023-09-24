@@ -2,12 +2,15 @@
  * @author 小寒寒
  * @name 青龙通知接口
  * @origin 小寒寒
- * @version 1.0.3
- * @description 青龙通知接口，适配于麦基EVE库，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号 不能其它通知接口插件共用
+ * @version 1.0.4
+ * @description 青龙通知接口，根据通知标记活动，适配于麦基EVE库，搭配库里SpyIsValid使用，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号 不能其它通知接口插件共用
  * @public false
  * @priority 99
  * @disable false
  * @service true
+ * 
+ * 
+ * 1.0.4 适配积分兑换，增加更多垃圾活动标记，优化日期处理
  */
 
 const SpyIsValid = new BncrDB('SpyIsValid');
@@ -40,7 +43,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
         if (title.indexOf('新增任务') > -1
             || (/\d+】\S*\d+京豆/.test(message) && title != 'M签到有礼' && title != 'M京东签到')
             || (/天,\d+京豆/.test(message) && title == 'M签到有礼')
-            || (/,已填地址/.test(message) && title != 'M试用有礼')) {
+            || (/,已填地址/.test(message) && title != 'M试用有礼' && !/(明日再来|未到每天兑换时间)/.test(message))) {
             await sysMethod.push({
                 platform: 'wxQianxun', // 平台
                 userId: 'jun812148374', // 个人id
@@ -49,27 +52,27 @@ router.post('/api/qinglongMessage', async (req, res) => {
             });
         }
 
-        if (message.indexOf('export ') > -1 && title[0] == 'M') {
+        if (message.includes('export ') && title[0] == 'M') {
             let exptPattern = /export \S+=\"\S+\"/;
             let expt = exptPattern.exec(message)?.toString();
 
             let url = /https:\/\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\*\+,%;\=]*/.exec(expt)?.toString();
             if (url) {
-                let activityId = getQueryString(url, 'activityId') || getQueryString(url, 'id');
-
+                let activityId = getQueryString(url, 'activityId') || getQueryString(url, 'id') || getQueryString(url, 'giftId');
+                // console.log(activityId);
                 if (activityId) {
                     let actCron = await SpyIsValid.get(activityId);
                     const timer_before = await SpyIsValid.get('timer_before');
-                    if (message.indexOf('未开始') > -1) {
+                    if (/未开始/.test(message)) {
                         let datePattern = /\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\s?至/;
                         let rlt = datePattern.exec(message)?.toString();
                         if (rlt) {
-                            let startTime = new Date(rlt.slice(0, 19)).getTime();
-                            let cron = dayjs(startTime - timer_before * 1000).format('s m H D M *');
+                            let startTime = dayjs(rlt.slice(0, 19)).subtract(timer_before, 'second')();
+                            let cron = startTime.format('s m H D M *');
                             if (!actCron) {
                                 console.log(`spy定时插队 ${cron} ${expt}`);
                                 await sysMethod.inline(`spy定时插队 ${cron} ${expt}`);
-                                await SpyIsValid.set(activityId, startTime - timer_before * 1000);
+                                await SpyIsValid.set(activityId, startTime['$d'].getTime());
                                 message += '\n\nBncr设置定时：' + cron;
                             }
                             else {
@@ -77,18 +80,18 @@ router.post('/api/qinglongMessage', async (req, res) => {
                             }
                         }
                     }
-                    else if (title == 'M购物车锦鲤' && message.indexOf('开奖时间:') > -1) {
+                    else if (title == 'M购物车锦鲤' && /开奖时间:/.test(message)) {
                         let datePattern = /开奖时间:\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}/;
                         let rlt = datePattern.exec(message)?.toString();
                         if (rlt) {
                             // console.log(rlt.substr(5, 16));
                             // console.log(rlt.substr(5, 16) + ':00');
-                            let startTime = new Date(rlt.substr(5, 16) + ':00').getTime();
-                            let cron = dayjs(startTime - timer_before * 1000).format('s m H D M *');
+                            let startTime = dayjs(rlt.substr(5, 16) + ':00').subtract(timer_before, 'second');
+                            let cron = startTime.format('s m H D M *');
                             if (!actCron) {
                                 console.log(`spy定时插队 ${cron} ${expt}`);
                                 await sysMethod.inline(`spy定时插队 ${cron} ${expt}`);
-                                await SpyIsValid.set(activityId, startTime - timer_before * 1000);
+                                await SpyIsValid.set(activityId, startTime['$d'].getTime());
                                 message += '\n\nBncr设置定时：' + cron;
                             }
                             else {
@@ -96,21 +99,48 @@ router.post('/api/qinglongMessage', async (req, res) => {
                             }
                         }
                     }
-                    else if (title == 'M购物车锦鲤' && message.indexOf('已经开奖') > -1) {
+                    else if (title == 'M积分兑换' && /(明日再来|未到每天兑换时间)/.test(message)) {
+                        let datePattern = /兑换时间:\d{2}:\d{2}/;
+                        let rlt = datePattern.exec(message)?.toString();
+                        let startTime = dayjs().add(1, 'day').startOf('day').subtract(timer_before, 'second');
+                        // console.log(startTime);
+                        if (rlt) {
+                            startTime = dayjs(`${dayjs().format('YYYY-MM-DD')} ${rlt.substr(5, 5)}:00`);
+                            if (message.includes('请明日再来')) {
+                                startTime = dayjs(startTime).add(1, 'day');
+                            }
+                        }
+                        startTime = dayjs.subtract(timer_before, 'second');
+                        if (!actCron) {
+                            let cron = startTime.format('s m H D M *');
+                            console.log(`spy定时插队 ${cron} ${expt}`);
+                            await sysMethod.inline(`spy定时插队 ${cron} ${expt}`);
+                            await SpyIsValid.set(activityId, startTime['$d'].getTime());
+                            message += '\n\nBncr设置定时：' + cron;
+                        }
+                        else {
+                            message += '\n\nBncr已定时过了。';
+                        }
+                    }
+                    else if (title == 'M购物车锦鲤' && /已经开奖/.test(message)) {
                         await SpyIsValid.set(activityId, '已经开奖');
                         message += '\n\nBncr已标记：已经开奖';
                     }
-                    else if (message.indexOf('活动已结束') > -1 || message.indexOf('活动已经结束') > -1) {
+                    else if (/(活动已过期|活动已结束|活动已经结束|商家token过期)/.test(message)) {
                         await SpyIsValid.set(activityId, '活动已结束');
                         message += '\n\nBncr已标记：活动已结束';
                     }
-                    else if (message.indexOf('垃圾或领完') > -1 || message.indexOf('垃圾活动') > -1) {
+                    else if (/(垃圾或领完|垃圾活动|达到\d+元才能参与抽奖)/.test(message)) {
                         await SpyIsValid.set(activityId, '垃圾或领完');
                         message += '\n\nBncr已标记：垃圾或领完';
                     }
-                    else if (message.indexOf('已经组满') > -1 && title == 'M组队瓜分') {
+                    else if (/已经组满/.test(message) && title == 'M组队瓜分') {
                         await SpyIsValid.set(activityId, '已经组满');
                         message += '\n\nBncr已标记：已经组满';
+                    }
+                    else if (title == 'M试用有礼') {
+                        await SpyIsValid.set(activityId, '已经执行过M试用有礼');
+                        message += '\n\nBncr已标记：已经执行过M试用有礼';
                     }
                 }
             }
@@ -138,7 +168,7 @@ router.get('/api/qinglongMessage', async (req, res) => {
 });
 
 function getQueryString(url, name) {
-    let reg = new RegExp('(^|&|)' + name + '=([^&]*)(&|$)', 'i');
+    let reg = new RegExp('([?|&])' + name + '=([^&]*)([&|$]?)');
     let r = url.match(reg);
     if (r != null) {
         return unescape(r[2]);

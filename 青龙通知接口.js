@@ -168,7 +168,7 @@ router.get('/api/qinglongMessage', async (req, res) => {
 });
 
 function getQueryString(url, name) {
-    let reg = new RegExp('([?|&])' + name + '=([^&]*)([&|$]?)');
+    let reg = new RegExp('([?&])' + name + '=([^&]+)');
     let r = url.match(reg);
     if (r != null) {
         return unescape(r[2]);

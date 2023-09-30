@@ -172,7 +172,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
 
         // tg推送全部日志
         await sysMethod.push({
-            platform: push3.push,
+            platform: push3.platform,
             groupId: push3.groupId, // tg青龙日志群
             msg: `${title}\n\n${message}`,
             type: 'text'

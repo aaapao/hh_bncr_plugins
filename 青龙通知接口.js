@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 青龙通知接口
  * @origin 小寒寒
- * @version 1.0.5
+ * @version 1.0.6
  * @description 青龙通知接口，根据通知标记活动，适配于麦基EVE库，搭配库里SpyIsValid使用，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号 不能其它通知接口插件共用
  * @public false
  * @priority 99
@@ -12,7 +12,33 @@
  * 
  * 1.0.4 适配积分兑换，增加更多垃圾活动标记，优化日期处理
  * 1.0.5 修复bug
+ * 1.0.6 优化及调整
  */
+
+// 指定标题推送
+const push1 = {
+    platform: 'wxQianxun', // 平台
+    groupId: 49230877656, // 群号
+}
+const title1 = ['东东农场', '京东价保', '互动消息检查',
+    'M银行卡支付有礼', '京东CK检测', 'M农场自动化',
+    '京东试用待领取物品通知', 'WSKEY转换',
+    '牛牛乐园合成',
+    'M京东签到',
+    '东东农场日常任务'
+]
+
+// 豆豆通知
+const push2 = {
+    platform: 'wxQianxun', // 平台
+    userId: 'jun812148374', // 群号
+}
+
+//青龙全部通知
+const push3 = {
+    platform: 'tgBot', // 平台
+    groupId: -1001805030658, // 群号
+}
 
 const SpyIsValid = new BncrDB('SpyIsValid');
 const dayjs = require('dayjs');
@@ -28,14 +54,10 @@ router.post('/api/qinglongMessage', async (req, res) => {
         // /* 推送日志 */
         // console.log('message', message);
         //关键活动推韭菜群
-        if (['东东农场', '京东价保', '互动消息检查', 'M银行卡支付有礼', '京东CK检测', 'M农场自动化',
-            '京东试用待领取物品通知', 'WSKEY转换',
-            '牛牛乐园合成',
-            'M京东签到'
-        ].includes(title)) {
+        if (title1.includes(title)) {
             await sysMethod.push({
-                platform: 'wxQianxun', // 平台
-                groupId: 49230877656, // 群号
+                platform: push1.platform, // 平台
+                groupId: push1.groupId, // 群号
                 msg: `${title}\n\n${message}`,
                 type: 'text'
             });
@@ -44,10 +66,11 @@ router.post('/api/qinglongMessage', async (req, res) => {
         if (/(新增任务|删除任务)/.test(title)
             || (/\d+】\S*\d+京豆/.test(message) && title != 'M签到有礼' && title != 'M京东签到')
             || (/天,\d+京豆/.test(message) && title == 'M签到有礼')
-            || (/,已填地址/.test(message) && title != 'M试用有礼' && !/(明日再来|未到每天兑换时间)/.test(message))) {
+            || (/,已填地址/.test(message) && title != 'M试用有礼' && !/(明日再来|未到每天兑换时间)/.test(message))
+        ) {
             await sysMethod.push({
-                platform: 'wxQianxun', // 平台
-                userId: 'jun812148374', // 个人id
+                platform: push2.platform, // 平台
+                userId: push2.userId, // 个人id
                 msg: `${title}\n\n${message}`,
                 type: 'text'
             });
@@ -59,7 +82,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
 
             let url = /https:\/\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\*\+,%;\=]*/.exec(expt)?.toString();
             if (url) {
-                let activityId = getQueryString(url, 'activityId') || getQueryString(url, 'id') || getQueryString(url, 'giftId');
+                let activityId = getQueryString(url, 'activityId') || getQueryString(url, 'id') || getQueryString(url, 'giftId') || getQueryString(url, 'actId');
                 // console.log(activityId);
                 if (activityId) {
                     let actCron = await SpyIsValid.get(activityId);
@@ -75,14 +98,6 @@ router.post('/api/qinglongMessage', async (req, res) => {
                     else if (/(垃圾或领完|垃圾活动|达到\d+元才能参与抽奖)/.test(message)) {
                         await SpyIsValid.set(activityId, '垃圾或领完');
                         message += '\n\nBncr已标记：垃圾或领完';
-                    }
-                    else if (/已经组满/.test(message) && title == 'M组队瓜分') {
-                        await SpyIsValid.set(activityId, '已经组满');
-                        message += '\n\nBncr已标记：已经组满';
-                    }
-                    else if (title == 'M试用有礼') {
-                        await SpyIsValid.set(activityId, '已经执行过M试用有礼');
-                        message += '\n\nBncr已标记：已经执行过M试用有礼';
                     }
                     else if (/未开始/.test(message)) {
                         let datePattern = /\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}\s?(至|\-)/;
@@ -120,6 +135,14 @@ router.post('/api/qinglongMessage', async (req, res) => {
                             }
                         }
                     }
+                    else if (/已经组满/.test(message) && title == 'M组队瓜分') {
+                        await SpyIsValid.set(activityId, '已经组满');
+                        message += '\n\nBncr已标记：已经组满';
+                    }
+                    else if (title == 'M试用有礼') {
+                        await SpyIsValid.set(activityId, '已经执行过M试用有礼');
+                        message += '\n\nBncr已标记：已经执行过M试用有礼';
+                    }
                     // else if (title == 'M积分兑换' && /(明日再来|未到每天兑换时间)/.test(message)) {
                     //     let datePattern = /兑换时间:\d{2}:\d{2}/;
                     //     let rlt = datePattern.exec(message)?.toString();
@@ -149,8 +172,8 @@ router.post('/api/qinglongMessage', async (req, res) => {
 
         // tg推送全部日志
         await sysMethod.push({
-            platform: 'tgBot',
-            groupId: -1001805030658, // tg青龙日志群
+            platform: push3.push,
+            groupId: push3.groupId, // tg青龙日志群
             msg: `${title}\n\n${message}`,
             type: 'text'
         });

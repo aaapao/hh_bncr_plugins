@@ -12,7 +12,7 @@
  * @admin true
  * @public false
  * @disable false
- * @cron 0 58 23 * * *
+ * @cron 58 59 23 * * *
  * @priority 99999
  */
 

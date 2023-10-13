@@ -46,7 +46,7 @@ const push3 = {
 }
 
 // 仅需执行一次的活动标记，如需再次运行请使用Spy立即运行命令
-const onlyTitles = ['M试用有礼', 'M邀请有礼WX', 'M邀请有礼JOY', 'M邀请有礼JINGGENG', 'M邀请有礼INTERACT'];
+const onlyTitles = ['M邀请有礼JINGGENG', 'M邀请有礼INTERACT'];
 
 // SpyIsValid相关功能，默认开启
 const spyIsValidEnable = true;

@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 关注有礼解析
  * @origin 小寒寒
- * @version 1.0.0
+ * @version 1.0.1
  * @description 关注有礼解析
  * @rule 关注[\s\S]*https:\/\/u\.jd\.com\/[0-9a-zA-Z]{7}
  * @priority 10000
@@ -35,15 +35,25 @@ module.exports = async s => {
                         method: 'get',
                         followRedirect: false
                     });
-                    let shopId = getQueryString(res2.headers.location, 'shopId');
-                    // console.log(shopId);
-                    let venderId = await getVenderId(shopId);
-                    // console.log(venderId);
-                    if (shopId && venderId) {
-                        let commond = `export ${envName}="${shopId}_${venderId}"`;
-                        console.log(commond)
+                    url = res2.headers.location;
+
+                    // 第一种方式，URL，只支持M关注有礼
+                    if (/shopId=[\d]+/.test(url)) {
+                        let commond = `export ${envName}="${url}"`;
+                        // console.log(commond)
                         await s.inlineSugar(commond);
                     }
+
+                    // 第二种方式 支持慈善家店铺关注有礼 M关注有礼
+                    // let shopId = getQueryString(url, 'shopId');
+                    // // console.log(shopId);
+                    // let venderId = await getVenderId(shopId);
+                    // // console.log(venderId);
+                    // if (shopId && venderId) {
+                    //     let commond = `export ${envName}="${shopId}_${venderId}"`;
+                    //     console.log(commond)
+                    //     await s.inlineSugar(commond);
+                    // }
                 }
 
             }
@@ -72,6 +82,7 @@ function generateRandomString(length) {
     }
     return result;
 }
+
 
 async function getVenderId(shopId) {
     let data = await request({

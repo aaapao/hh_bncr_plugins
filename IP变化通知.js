@@ -33,7 +33,7 @@ module.exports = async s => {
                 type: 'text',
                 msg: "【IP变更通知】\n上次IP：" + ip + "\n当前IP：" + newip + "\n开始执行【更换白名单】命令"
             });
-            s.inline('更换白名单');
+            await s.inlineSugar('更换白名单');
         }
     }
     else {

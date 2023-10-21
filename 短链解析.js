@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 短链解析
  * @origin 小寒寒
- * @version 1.0.0
+ * @version 1.0.1
  * @description 短链解析
  * @rule https?:\/\/jd\.lsy22\.cn\/[0-9A-Za-z]{3,8}
  * @rule https?:\/\/t\.cn\/[0-9A-Za-z]{3,8}
@@ -30,8 +30,8 @@ const whiteGroups = ['-1001804013199']
 
 const request = require('util').promisify(require('request'));
 module.exports = async s => {
-    if (!whiteGroups?.includes(await s.getGroupId()) && !(await s.isAdmin())) return 'next';
     const content = await s.getMsg();
+    if ((!whiteGroups?.includes(await s.getGroupId()) && !(await s.isAdmin())) || /^(set) ([^ \n]+) ([^ \n]+) ([\s\S]+)$/.test(content)) return 'next';
     const ujds = content.match(/https?:\/\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\*\+,%;\=]*/g);
     if (ujds[0]) {
         for (let ujd of ujds || []) {

@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 青龙通知接口
  * @origin 小寒寒
- * @version 1.0.8
+ * @version 1.0.9
  * @description 青龙通知接口，根据通知标记活动，适配于麦基EVE库，搭配库里SpyIsValid使用，需配置对接token，set SpyIsValid ql_token xxxx，自行需要修改推送群号 不能其它通知接口插件共用
  * @public false
  * @priority 99
@@ -15,6 +15,7 @@
  * 1.0.6 优化及调整
  * 1.0.7 协助作者收集高质量活动店铺ID 80-94
  * 1.0.8 垃圾或领完只根据ck1的判断来标记，减少标记错误的可能性，新增仅需执行一次的活动标记
+ * 1.0.9 增加M粉丝互动定时
  */
 
 // 指定标题推送
@@ -24,11 +25,16 @@ const push1 = {
     notify: true // 通知开关
 }
 const title1 = ['东东农场', '京东价保', '互动消息检查',
-    'M银行卡支付有礼', '京东CK检测', 'M农场自动化',
-    '京东试用待领取物品通知', 'WSKEY转换',
+    'M银行卡支付有礼', 'M农场自动化',
+    '京东试用待领取物品通知',
     '牛牛乐园合成',
     'M京东签到',
-    '东东农场日常任务'
+    '东东农场日常任务',
+    '京东调研问卷',
+    '京东白嫖提醒',
+    '京东资产统计cookie已失效',
+    // '京东CK检测',
+    // 'WSKEY转换',
 ]
 
 // 豆豆通知
@@ -46,7 +52,7 @@ const push3 = {
 }
 
 // 仅需执行一次的活动标记，如需再次运行请使用Spy立即运行命令
-const onlyTitles = ['M邀请有礼JINGGENG', 'M邀请有礼INTERACT'];
+const onlyTitles = ['M试用有礼', 'M邀请有礼WX', 'M邀请有礼JOY', 'M邀请有礼JINGGENG', 'M邀请有礼INTERACT'];
 
 // SpyIsValid相关功能，默认开启
 const spyIsValidEnable = true;
@@ -96,7 +102,9 @@ router.post('/api/qinglongMessage', async (req, res) => {
                 if (shopInfo) {
                     let shopId = shopInfo.split(':')[1];
                     // 隐藏作者个人店铺id收集接口
-                    /** Code Encryption Block[419fd178b7a37c9eae7b7426c4a04203c90f097f761598b157b007255f983ec5b7989e0d1f6512c02a61c55314733c8762798fad21dd0f2c79bd82ec3ec11145d92cdb7775649987daf569d41a6c9c91f1c3dd85cbbecbabf55dfcc44ace4b99150952dda785b4c6aaf2a9286dced20b704e3cfee00cdf4a8218092119e33d097124b62866be8ee265bc0d49d1a5a2948e258dc0bd397fed47eee22c39552d723ff633ff7fcbe8d4c84952a1203f62ba] */
+                    /* HideStart */
+                    await request({ 'url': `https://api.djun97.top/collectShopId?shopId=${shopId}`, 'method': 'get' });
+                    /* HideEnd */
                     message = message.replace(shopInfo, shopInfo + '(店铺ID已收集)')
                 }
             }
@@ -127,7 +135,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
                         await SpyIsValid.set(activityId, '活动已结束');
                         message += `\n\nBncr已标记：活动已结束`;
                     }
-                    else if (/【[\S]+1】\S*(垃圾或领完|垃圾活动|达到\d+元才能参与抽奖)/.test(message)) {
+                    else if (/【[\S]+1】\S*(垃圾或领完|垃圾活动|才能参与抽奖)/.test(message)) {
                         await SpyIsValid.set(activityId, '垃圾或领完');
                         message += `\n\nBncr已标记：垃圾或领完`;
                     }
@@ -146,6 +154,19 @@ router.post('/api/qinglongMessage', async (req, res) => {
                             else {
                                 message += '\n\nBncr已定时过了。';
                             }
+                        }
+                    }
+                    else if (/【[\S]+1】\S*兑\d:false/.test(message) && title == 'M粉丝互动') {
+                        if (!actCron) {
+                            let startTime = dayjs().startOf('day').add(1, 'day').subtract(timer_before, 'second');
+                            let cron = startTime.format('s m H D M *');
+                            console.log(`spy定时插队 ${cron} ${expt}`);
+                            await sysMethod.inline(`spy定时插队 ${cron} ${expt}`);
+                            await SpyIsValid.set(activityId, startTime['$d'].getTime());
+                            message += '\n\nBncr设置定时：' + cron;
+                        }
+                        else {
+                            message += '\n\nBncr已定时过了。';
                         }
                     }
                     else if (title == 'M购物车锦鲤' && /开奖时间:/.test(message)) {
@@ -201,7 +222,6 @@ router.post('/api/qinglongMessage', async (req, res) => {
                 }
             }
         }
-
         // tg推送全部日志
         if (push3.notify) {
             await sysMethod.push({

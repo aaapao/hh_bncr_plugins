@@ -95,22 +95,7 @@ router.post('/api/qinglongMessage', async (req, res) => {
                 });
             }
 
-            // 协助作者收集高质量活动店铺ID
-            try {
-                let shopInfo = /店铺信息:[\d]+_[\d]+/.exec(message)?.toString() || '';
-                // console.log(shopInfo);
-                if (shopInfo) {
-                    let shopId = shopInfo.split(':')[1];
-                    // 隐藏作者个人店铺id收集接口
-                    /* HideStart */
-                    await request({ 'url': `https://api.djun97.top/collectShopId?shopId=${shopId}`, 'method': 'get' });
-                    /* HideEnd */
-                    message = message.replace(shopInfo, shopInfo + '(店铺ID已收集)')
-                }
-            }
-            catch (e) {
-                console.log(e)
-            }
+            
         }
 
         if (message.includes('export ') && title[0] == 'M' && spyIsValidEnable) {

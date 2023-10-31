@@ -77,12 +77,17 @@ module.exports = async s => {
                         }
                     }
                     else {
-                        commond = url || ujd;
+                        commond = url;
                     }
                 }
-                commond = commond.replace(/\s/, '');
-                let spy = await SpyHandleMsg(commond);
-                jx.push(spy || commond);
+                if (commond) {
+                    commond = commond.replace(/\s/, '');
+                    let spy = await SpyHandleMsg(commond);
+                    jx.push(spy || commond);
+                }
+                else {
+                    jx.push('无效的短链接')
+                }
             }
             catch (e) {
                 console.log(e);

@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 短链解析
  * @origin 小寒寒
- * @version 1.0.2
+ * @version 1.0.3
  * @description 短链解析
  * @rule https?:\/\/jd\.lsy22\.cn\/[0-9A-Za-z]{3,8}
  * @rule https?:\/\/t\.cn\/[0-9A-Za-z]{3,8}
@@ -11,6 +11,7 @@
  * @rule https?:\/\/u\.jd\.lu1dou\.com\/[0-9A-Za-z]{3,8}
  * @rule https:\/\/u\.jd\.com\/[0-9a-zA-Z]{7}
  * @rule https?:\/\/sourl\.cn/[0-9a-zA-Z]{3,8}
+ * @rule https?:\/\/\dkma\.cn/[0-9a-zA-Z]{3,8}
  * @priority 10000
  * @admin false
  * @disable false

@@ -2,7 +2,7 @@
  * @author 小寒寒
  * @name 短链解析
  * @origin 小寒寒
- * @version 1.0.3
+ * @version 1.0.4
  * @description 短链解析
  * @rule https?:\/\/jd\.lsy22\.cn\/[0-9A-Za-z]{3,8}
  * @rule https?:\/\/t\.cn\/[0-9A-Za-z]{3,8}
@@ -81,7 +81,7 @@ module.exports = async s => {
                     }
                 }
                 if (commond) {
-                    commond = commond.replace(/\s/, '');
+                    commond = commond.replace(/\r?\n/, '');
                     let spy = await SpyHandleMsg(commond);
                     jx.push(spy || commond);
                 }
